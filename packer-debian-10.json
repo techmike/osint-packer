@@ -1,0 +1,120 @@
+{
+  "variables":{
+    "version":"1",
+    "vm_name": "debian10",
+    "server_type": "desktop",
+    "system_type": "standard",
+    "storage_type": "encrypted",
+    "iso_name": "debian-10.2.0-amd64-netinst.iso",
+    "iso_url": "http://192.168.110.61/iso",
+    "iso_checksum": "e43fef979352df15056ac512ad96a07b515cb8789bf0bfd86f99ed0404f885f5",
+    "iso_checksum_type": "sha256",
+    "box_desc": "Debian 10 64 Bit system"
+
+  },
+  "description": "{{user `box_desc`}}",
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "boot_command": [
+        "<esc><wait>",
+        "<esc><wait>",
+        "install <wait>",
+        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `vm_name`}}-preseed-{{user `server_type`}}-{{user `storage_type`}}.cfg <wait>",
+        "debian-installer=en_US.UTF-8 <wait>",
+        "auto <wait>",
+        "locale=en_US.UTF-8 <wait>",
+        "kbd-chooser/method=us <wait>",
+        "keyboard-configuration/xkb-keymap=us <wait>",
+        "netcfg/get_hostname={{user `vm_name`}}-{{user `server_type`}} <wait>",
+        "netcfg/get_domain=thelifeofageek.net <wait>",
+        "fb=false <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "console-setup/ask_detect=false <wait>",
+        "console-keymaps-at/keymap=us <wait>",
+        "grub-installer/bootdev=/dev/sda <wait>",
+        "<enter><wait>"
+      ],
+      "boot_wait": "10s",
+      "disk_size": 20480,
+      "guest_os_type": "Debian_64",
+      "headless": true,
+      "http_directory": "http",
+      "iso_urls": [
+        "{{user `iso_url` }}/{{user `iso_name`}}",
+        "/mnt/nfs/iso/{{user `iso_name`}}",
+        "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/{{user `iso_name`}}"
+      ],
+      "iso_checksum_type": "{{user `iso_checksum_type` }}",
+      "iso_checksum": "{{user `iso_checksum` }}",
+      "ssh_username": "ctfadmin",
+      "ssh_password": "ctfadmin",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "shutdown_command": "echo 'ctfadmin'|sudo -S shutdown -P now",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "virtualbox_version_file": ".vbox_version",
+      "vm_name": "{{ user `vm_name` }}-{{timestamp}}",
+      "output_directory": "{{ user `vm_name` }}-{{timestamp}}",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "2048"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "2"
+        ]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'ctfadmin' | sudo -S -E sh {{.Path}}",
+      "expect_disconnect": true,
+      "scripts": [
+        "scripts/python.sh",
+        "scripts/ansible.sh",
+        "scripts/update.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'ctfadmin' | sudo -S -E sh {{.Path}}",
+      "scripts": [
+        "scripts/virtualbox.sh"
+      ],
+      "only": ["virtualbox-iso"]
+    },
+    {
+      "type": "ansible-local",
+      "role_paths": [
+        "ansible/roles/osint"
+
+      ],
+      "playbook_file": "ansible/osint-desktop.yml"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'ctfadmin' | sudo -S -E sh {{.Path}}",
+      "scripts": [
+        "scripts/cleanup.sh"
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "output": "builds/{{.Provider}}-{{user `storage_type`}}-{{user `server_type`}}-{{user `system_type`}}-debian10.box",
+        "type": "vagrant",
+        "compression_level": 9,
+        "only": ["virtualbox-iso"]
+      }
+    ]
+  ]
+}

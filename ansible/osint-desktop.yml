@@ -1,0 +1,10 @@
+---
+# file: osint.yml
+- hosts: all
+  gather_facts: True
+  user: ctfadmin
+  become: true
+  roles:
+    - osint
+  vars:
+    USERNAME: "ctfadmin"
