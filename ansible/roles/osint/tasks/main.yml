@@ -14,6 +14,13 @@
     dest: "{{ tools_path }}/recon-ng/"
 
 
+- name: 'Install recon-ng requirements'
+  pip:
+    requirements: /opt/recon-ng/REQUIREMENTS
+    state: present
+    executable: pip3
+
+
 - name: "Create symlink for recon-ng"
   file:
     src: "{{ tools_path }}/recon-ng/{{ item }}"
