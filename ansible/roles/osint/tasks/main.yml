@@ -7,7 +7,9 @@
     state: present
   with_items:
     - git-core
+    - libimage-exiftool-perl
 
+# Install Recon-ng
 - name: "Install recon-ng"
   git:
     repo: "https://github.com/lanmaster53/recon-ng"
@@ -31,3 +33,4 @@
   with_items:
     - recon-ng
     - recon-cli
+

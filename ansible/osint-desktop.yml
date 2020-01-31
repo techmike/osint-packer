@@ -6,5 +6,7 @@
   become: true
   roles:
     - osint
+    - osint-docker
   vars:
     USERNAME: "ctfadmin"
+    docker_users: ["{{USERNAME}}"]

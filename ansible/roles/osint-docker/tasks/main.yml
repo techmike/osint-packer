@@ -1,0 +1,36 @@
+---
+# tasks file for roles/tloag-docker
+
+- name: include os specific tasks
+  include_tasks: "{{ ansible_distribution }}.yml"
+
+- name: install python docker
+  pip:
+    name:
+      - pip
+      - docker
+    executable: pip3
+    state: latest
+
+- template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: 0600
+  notify:
+    - restart docker
+
+- name: enable docker
+  systemd:
+    name:          docker
+    state:         started
+    enabled:       true
+    daemon_reload: yes
+
+- name: Added users to docker group
+  user:
+    name: "{{ item }}"
+    groups: ["docker"]
+    append: yes
+  with_items:
+    - "{{ docker_users }}"
+

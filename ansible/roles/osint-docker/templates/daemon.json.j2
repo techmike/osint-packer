@@ -1,0 +1,9 @@
+{
+  {% if ipv6 == true %}
+  "ipv6": true,
+  "fixed-cidr-v6":"2001:db8:1::/64",
+  {% else %}
+  "ipv6": false,
+  {% endif %}
+  "debug": false
+}

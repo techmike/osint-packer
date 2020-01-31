@@ -1,0 +1,4 @@
+---
+# defaults file for roles/tloag-docker
+docker_users:
+ipv6: false
