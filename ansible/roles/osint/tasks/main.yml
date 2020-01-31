@@ -1,2 +1,26 @@
 ---
 # tasks file for ansible/roles/osint
+
+- name: "Install dependencies"
+  package:
+    name: " {{ item }}"
+    state: present
+  with_items:
+    - git-core
+
+- name: "Install recon-ng"
+  git:
+    repo: "https://github.com/lanmaster53/recon-ng"
+    dest: "{{ tools_path }}/recon-ng/"
+
+
+- name: "Create symlink for recon-ng"
+  file:
+    src: "{{ tools_path }}/recon-ng/{{ item }}"
+    dest: "/usr/bin/{{ item }}"
+    owner: root
+    group: root
+    state: link
+  with_items:
+    - recon-ng
+    - recon-cli

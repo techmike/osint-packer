@@ -1,2 +1,4 @@
 ---
 # defaults file for ansible/roles/osint
+
+tools_path: "/opt"
